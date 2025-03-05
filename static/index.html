@@ -9,6 +9,21 @@
     <!-- topojason graphs -->
     <script src="https://d3js.org/topojson.v3.min.js"></script>
     <style>
+        body {
+          background-color: black;
+          color: white;
+          font-family: Arial, sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
         .gridlines line {
           stroke: #bbb;
         }
@@ -26,6 +41,7 @@
           stroke: white;
           stroke-width: 1px;
         }
+
         .tooltip {
           position: absolute;
           background: white;
@@ -36,6 +52,56 @@
           display: none;
           pointer-events: none;
         }
+
+        /* Container for Filters + Views */
+        .filter-container {
+            width: 80%;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid white;
+        }
+
+        /* Home List + Map Container */
+        .main-container {
+            display: flex;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        /* Home List */
+        #list-container {
+            width: 50%;
+            height: 500px;
+            overflow-y: auto;
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .list-item {
+            width: 50px;
+            height: 50px;
+        }
+
+        .list-item img {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Map */
+        #map-container {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #choropleth {
+            background: rgb(255, 255, 255);
+        }
     </style>
 </head>
 <body>
@@ -45,7 +111,16 @@
     <svg id="choropleth" height="700" width="700" style="background: rgb(255, 255, 255); margin-top:0px"></svg>
     <div id="tooltip" class="tooltip"></div>
 
+    <div id="list-container"></div>
+
     <script>
+
+        const homeTypeIcons = {
+          "Single Family": "singlefam.svg",
+          "Multi Family": "multifam.svg",
+          "Townhouse": "townhouse.svg",
+          "Condo": "condo.svg"
+        };
 
         const choropleth = d3.select("#choropleth");
         const mapWidth = choropleth.attr("width");
@@ -107,6 +182,23 @@
 
         }
         loadData();
+
+        const loadHomes = async () => {
+            const houseData = await d3.csv("zillow_pittsburgh.csv");
+
+            const homeList = d3.select("#list-container");
+
+            homeList.selectAll(".list-item")
+                .data(houseData)
+                .join("div")
+                .attr("class", "list-item")
+                .html(d => {
+                    const icon = homeTypeIcons[d.Type] || "default.svg";
+                    return `<img src="${icon}" alt="${d.Type}">`;
+                });
+        };
+
+        loadHomes();
     </script>
 </body>
 </html>
