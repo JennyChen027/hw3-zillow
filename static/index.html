@@ -1,14 +1,113 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>HW3</title>
+    <title>Zillow Pittsburgh</title>
+    <!--Mika pick font :D-->
+
+    <!-- Data Visualization library -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- topojason graphs -->
     <script src="https://d3js.org/topojson.v3.min.js"></script>
+    <style>
+        .gridlines line {
+          stroke: #bbb;
+        }
+      
+        .gridlines .domain {
+          stroke: none;
+        }
+        
+        .border {
+          stroke: #333;
+          fill: none;
+        }
+        .neighborhood {
+          fill: lightgrey;
+          stroke: white;
+          stroke-width: 1px;
+        }
+        .tooltip {
+          position: absolute;
+          background: white;
+          padding: 5px;
+          border: 1px solid black;
+          border-radius: 5px;
+          font-size: 12px;
+          display: none;
+          pointer-events: none;
+        }
+    </style>
 </head>
 <body>
     <h1>
-        Hello World!
+        Houses in Pittsburgh
     </h1>
+    <svg id="choropleth" height="700" width="700" style="background: rgb(255, 255, 255); margin-top:0px"></svg>
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+
+        const choropleth = d3.select("#choropleth");
+        const mapWidth = choropleth.attr("width");
+        const mapHeight = choropleth.attr("height");
+        const mapMargin = { top: 20, right: 20, bottom: 20, left: 20};
+        const mapAreaWidth = mapWidth - mapMargin.left - mapMargin.right;
+        const mapAreaHeight = mapHeight - mapMargin.top - mapMargin.bottom;
+        const map = choropleth.append("g")
+                    .attr("transform","translate("+mapMargin.left+","+mapMargin.top+")");
+
+        const loadData  = async function() {
+
+            // removed Avalon & Oakwood house (quantity: 2) bc outside of Pittsburgh
+            const houseData = (await d3.csv("zillow_pittsburgh.csv"))
+                .filter(d => d.Neighborhood !== "Avalon")
+                .filter(d => d.Neighborhood !== "Oakwood");
+
+            // check how many unique neighborhoods there are: 57
+            const uniqueNeighborhoods = new Set(houseData.map(point => point.Neighborhood));
+
+            let pitts = await d3.json("pittsburgh.geojson");
+            var neigh = pitts.features;
+
+
+            var projection = d3.geoMercator().fitSize([mapWidth, mapHeight], { type: "FeatureCollection", features: neigh });
+            var path = d3.geoPath().projection(projection);
+           
+            map.selectAll("path.neighborhood").data(neigh)
+            .join("path")
+            .attr("class", "neighborhood")
+            .attr("d", path);
+
+            const tooltip = d3.select("#tooltip");
+
+            map.selectAll("circle").data(houseData)
+                .join("circle")
+                .attr("class", "circle")
+                .attr("cx", d => projection([+d.Longitude, +d.Latitude])[0]) // need to convert coord to pixel equivalent
+                .attr("cy", d => projection([+d.Longitude, +d.Latitude])[1]) // + helps convert string to num - type coercion
+                .attr("r", 3)
+                .attr("fill", "red")
+                .attr("opacity", 0.7)
+                .attr("stroke", "black")
+                .attr("stroke-width", 0.5)
+                .on("mouseover", (event, d) => {
+                    tooltip.style("display", "block")
+                           .html(`Neighborhood: <strong>${d.Neighborhood}</strong>`)
+                           .style("left", (event.pageX + 10) + "px")
+                           .style("top", (event.pageY - 10) + "px");
+                })
+                .on("mousemove", (event, d) => {
+                    tooltip.style("left", (event.pageX + 10) + "px")
+                           .style("top", (event.pageY - 10) + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.style("display", "none");
+                });
+
+
+        }
+        loadData();
+    </script>
 </body>
 </html>
 
