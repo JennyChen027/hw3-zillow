@@ -16,6 +16,10 @@
           display: flex;
           flex-direction: column;
           align-items: center;
+          justify-content: center;
+          width: 70%;
+          height: 100%;
+          margin: auto;
         }
 
         h1 {
@@ -53,14 +57,6 @@
           pointer-events: none;
         }
 
-        /* Container for Filters + Views */
-        .filter-container {
-            width: 80%;
-            display: flex;
-            justify-content: space-between;
-            padding: 20px 0;
-            border-bottom: 1px solid white;
-        }
 
         /* Home List + Map Container */
         .main-container {
@@ -102,52 +98,193 @@
         #choropleth {
             background: rgb(255, 255, 255);
         }
+
+
+        /* Container for Filters*/
+        .filter-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 0;
+            align-items: flex-start;
+            padding: 20px 0;
+        }
+
+        .row{
+          display: flex;
+          flex-direction: row;
+          width: 100%;
+          gap: 24px;
+
+        }
+
+        .col{
+          display: flex;
+          flex-direction: column;
+          width: 50%;
+          gap: 24px;
+        }
+
+        /* button style */
+        #homeTypeButtons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .home-type-btn {
+            background: transparent;
+            border: none;
+            padding: 0 ;
+            width: 100px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .home-type-btn img {
+            width: 60px; 
+            height: auto;
+            margin-bottom: 5px;
+        }
+
+        .home-type-btn.selected {
+            background: rgba(255, 255, 255, 0.2); /* Dark semi-transparent background */
+        }
+
+        /* dropdown style */
+        select {
+          appearance: none; 
+          background: black;
+          color: white;
+          border: 2px solid white;
+          border-radius: 10px;
+          padding: 10px 15px;
+          font-size: 16px;
+          cursor: pointer;
+          width: 150px; /* Adjust width as needed */
+          text-align: left;
+      }
+
+      /* Custom dropdown arrow */
+      select::after {
+          content: "▼";
+          position: absolute;
+          right: 15px;
+          pointer-events: none;
+      }
+
+      /* Style the dropdown when clicked */
+      select:focus {
+          outline: none;
+          border-color: #888;
+      }
+
+      /* deepdive panel */
+      #side-data {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+        color: white;
+        font-size: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-left: 20px; /* Push away from the map */
+    }
+
+    #main-data{
+      width: 60%;
+    }
+
+
+
     </style>
 </head>
 <body>
     <h1>
-        Houses in Pittsburgh
+      What home are you looking for?
     </h1>
-    <div class="filter-container">
-      <div>
-        <label>Beds:</label>
-        <select id="bedFilter">
-            <option value="">Any</option>
-            <option value="1">1+</option>
-            <option value="2">2+</option>
-            <option value="3">3+</option>
-            <option value="4">4+</option>
-        </select>
+
+        <div class="filter-container">
+          <div class="row">
+          <div class="col">
+            <h3>Configuration</h3>
+            <div class="row">
+            <div class="filter-group">
+                <label>Beds</label>
+                <select id="bedFilter">
+                    <option value="">Any</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                </select>
+            </div>
+        
+            <div class="filter-group">
+                <label>Baths</label>
+                <select id="bathFilter">
+                    <option value="">Any</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                </select>
+            </div>
+          </div>
+          </div>  
+
+          <div class="col">
+            <h3>Home Type</h3>
+            <div class="filter-group">
+                <div id="homeTypeButtons">
+                    <button class="home-type-btn" data-type="SingleFamily">
+                        <img src="images/singlefam.svg" alt="Single Family">
+                        Single Family
+                    </button>
+                    <button class="home-type-btn" data-type="MultiFamily2To4">
+                        <img src="images/multifam.svg" alt="Multi Family">
+                        Multi Family
+                    </button>
+                    <button class="home-type-btn" data-type="Townhouse">
+                        <img src="images/townhouse.svg" alt="Townhouse">
+                        Townhouse
+                    </button>
+                    <button class="home-type-btn" data-type="Condominium">
+                        <img src="images/condo.svg" alt="Condo">
+                        Condo
+                    </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>      
+
+    <div class="row">
+      <div class="main-data">
+      <svg id="choropleth" height="700" width="700" style="background: rgb(255, 255, 255); margin-top:0px"></svg>
+      <div id="tooltip" class="tooltip"></div>
+      <div id="list-container"></div>
+      </div>
+
+      <div class="side-data">
+        <h2>Home Details</h2>
+        <p><strong>Address:</strong> <span id="deep-address">-</span></p>
+        <p><strong>Price:</strong> <span id="deep-price">-</span></p>
+        <p><strong>Home Type:</strong> <span id="deep-type">-</span></p>
+        <p><strong>Year Built:</strong> <span id="deep-year">-</span></p>
+        <p><strong>Beds:</strong> <span id="deep-beds">-</span></p>
+        <p><strong>Baths:</strong> <span id="deep-baths">-</span></p>
+      </div>
     </div>
-
-    <div>
-        <label>Baths:</label>
-        <select id="bathFilter">
-            <option value="">Any</option>
-            <option value="1">1+</option>
-            <option value="2">2+</option>
-            <option value="3">3+</option>
-            <option value="4">4+</option>
-        </select>
-    </div>
-
-      <div>
-        <label>Home Type:</label>
-        <select id="homeTypeFilter">
-            <option value="">Any</option>
-            <option value="SingleFamily">Single Family</option>
-            <option value="MultiFamily2To4">Multi-Family (2-4)</option>
-            <option value="Townhouse">Townhouse</option>
-            <option value="Condominium">Condo</option>
-        </select>
-    </div>
-
-    </div>
-    <svg id="choropleth" height="700" width="700" style="background: rgb(255, 255, 255); margin-top:0px"></svg>
-    <div id="tooltip" class="tooltip"></div>
-
-    <div id="list-container"></div>
-
     <script>
 
         const homeTypeIcons = {
@@ -156,6 +293,7 @@
           "Townhouse": "images/townhouse.svg",
           "Condominium": "images/condo.svg"
         };
+
 
         const homeTypeColors = d3.scaleOrdinal()
           .domain(["SingleFamily", "MultiFamily2To4", "Townhouse", "Condominium"])
@@ -170,7 +308,16 @@
         const map = choropleth.append("g")
                     .attr("transform","translate("+mapMargin.left+","+mapMargin.top+")");
 
-                    let houseData = []; // Global variable
+        let houseData = []; // Global variable
+
+        const updateDeepDive = (home) => {
+          document.getElementById("deep-address").innerText = home["Street Address"] || "N/A";
+          document.getElementById("deep-price").innerText = home["Sale Amount"] ? `$${home["Sale Amount"]}` : "N/A";
+          document.getElementById("deep-type").innerText = home["Property Type"] || "N/A";
+          document.getElementById("deep-year").innerText = home["Year Built"]|| "N/A";
+          document.getElementById("deep-beds").innerText = home.Bedrooms || "N/A";
+          document.getElementById("deep-baths").innerText = home.Bathroom || "N/A";
+        };
 
         const loadData = async function() {
             houseData = (await d3.csv("zillow_pittsburgh.csv"))
@@ -185,12 +332,29 @@
             loadHomes(houseData);
 
         };
+        
+        const selectedHomeTypes = new Set(); 
+
+        document.querySelectorAll(".home-type-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const type = btn.dataset.type;
+                
+                if (selectedHomeTypes.has(type)) {
+                    selectedHomeTypes.delete(type);  // Deselect
+                    btn.classList.remove("selected");
+                } else {
+                    selectedHomeTypes.add(type);  // Select
+                    btn.classList.add("selected");
+                }
+
+                applyFilters();  // Update results
+            });
+        });
 
         const applyFilters = () => {
           // jenny u can edit this with ur range slider stuff
           const minBeds = +document.getElementById("bedFilter").value || 0;
           const minBaths = +document.getElementById("bathFilter").value || 0;
-          const homeType = document.getElementById("homeTypeFilter").value;
 
 
           // Apply filters
@@ -200,8 +364,8 @@
                   // +d.YearBuilt >= minYear && +d.YearBuilt <= maxYear &&
                   +d["Bedrooms"] >= minBeds &&
                   +d["Bathroom"] >= minBaths &&
-                  (homeType === "" || d["Property Type"] === homeType)
-              );
+                  (selectedHomeTypes.size === 0 || selectedHomeTypes.has(d["Property Type"]))
+                  );
           });
 
           updateList(filteredData);
@@ -253,8 +417,10 @@
                           .style("top", (event.pageY - 10) + "px");
                 })
                 .on("mouseout", () => {
-                    tooltip.style("display", "none");
-                });
+                    tooltip.style("display", "none")
+                })
+                .on("click", (event, d) => updateDeepDive(d)); // Add click event
+                
 
             console.log("Map Loaded with", houseData.length, "homes");
             console.log(houseData["Property Type"]);
@@ -272,6 +438,7 @@
                 .data(houseData)
                 .join("div")
                 .attr("class", "list-item")
+                .on("click", (event, d) => updateDeepDive(d)) // Add click event
                 .html(d => {
                     const icon = homeTypeIcons[d["Property Type"]] || "default.svg";
                     return `<img src="${icon}" alt="${d.Type}">`;
@@ -288,6 +455,7 @@
               .data(data)
               .join("div")
               .attr("class", "list-item")
+              .on("click", (event, d) => updateDeepDive(d)) // Add click event
               .html(d => {
                   const icon = homeTypeIcons[d["Property Type"]] || "default.svg";
                   return `<img src="${icon}" alt="${d.Type}">`;
@@ -328,6 +496,7 @@
                     tooltip.style("left", (event.pageX + 10) + "px")
                           .style("top", (event.pageY - 10) + "px");
                 })
+                .on("click", (event, d) => updateDeepDive(d)) 
                 .on("mouseout", () => {
                     tooltip.style("display", "none");
                 }),
@@ -337,7 +506,6 @@
 
         document.getElementById("bedFilter").addEventListener("change", applyFilters);
         document.getElementById("bathFilter").addEventListener("change", applyFilters);
-        document.getElementById("homeTypeFilter").addEventListener("change", applyFilters);
 
 
 
