@@ -122,6 +122,10 @@
           "Condominium": "images/condo.svg"
         };
 
+        const homeTypeColors = d3.scaleOrdinal()
+          .domain(["SingleFamily", "MultiFamily2To4", "Townhouse", "Condominium"])
+          .range(["#4EC58C", "#3197CD", "#F5CA7D", "#F8957B"]); // Customize colors
+
         const choropleth = d3.select("#choropleth");
         const mapWidth = choropleth.attr("width");
         const mapHeight = choropleth.attr("height");
@@ -144,12 +148,14 @@
 
             loadMap(); // Run loadMap only after data is ready
             loadHomes();
+
         };
 
         const loadMap = async function() {
             if (houseData.length === 0) {
                 return;
             }
+
 
             // check how many unique neighborhoods there are: 57
             const uniqueNeighborhoods = new Set(houseData.map(point => point.Neighborhood));
@@ -173,7 +179,7 @@
                 .attr("cx", d => projection([+d.Longitude, +d.Latitude])[0])
                 .attr("cy", d => projection([+d.Longitude, +d.Latitude])[1])
                 .attr("r", 3)
-                .attr("fill", "red")
+                .attr("fill", d => homeTypeColors(d["Property Type"]) || "#ccc") 
                 .attr("opacity", 0.7)
                 .attr("stroke", "black")
                 .attr("stroke-width", 0.5)
@@ -192,6 +198,10 @@
                 });
 
             console.log("Map Loaded with", houseData.length, "homes");
+            console.log(houseData["Property Type"]);
+            console.log(houseData[0]);
+
+
         };
 
         const loadHomes = async () => {
