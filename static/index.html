@@ -2,8 +2,10 @@
 <html>
 <head>
     <title>Zillow Pittsburgh</title>
-    <!--Mika pick font :D-->
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cousine:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
     <!-- Data Visualization library -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <!-- topojason graphs -->
@@ -20,12 +22,29 @@
           width: 70%;
           height: 100%;
           margin: auto;
+          font-family:"Cousine", monospace;
+
+        }
+
+        text{
+          font-family:"Cousine", monospace;
+        }
+
+        label{
+          font-family:"Cousine", monospace;
         }
 
         h1 {
-            text-align: center;
-            font-size: 24px;
-            margin: 20px 0;
+          font-family: "Instrument Serif", serif;
+          font-style: normal;
+          text-align: center;
+          font-size: 24px;
+          margin: 20px 0;
+        }
+
+        h2, h3{
+          font-family: "Instrument Serif", serif;
+
         }
 
         .gridlines line {
@@ -129,6 +148,13 @@
             display: flex;
             justify-content: center;
             gap: 20px;
+            font-family:"Cousine", monospace;
+
+        }
+
+        button{
+          font-family:"Cousine", monospace;
+
         }
 
         .home-type-btn {
