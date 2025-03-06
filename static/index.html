@@ -204,13 +204,12 @@
                 .join("div")
                 .attr("class", "list-item")
                 .html(d => {
-                    const icon = homeTypeIcons[d.Type] || "default.svg";
+                    const icon = homeTypeIcons[d["Property Type"]] || "default.svg";
                     return `<img src="${icon}" alt="${d.Type}">`;
                 });
         };
 
         loadData();
-
 
 
 
