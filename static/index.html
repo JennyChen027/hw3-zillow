@@ -108,6 +108,41 @@
     <h1>
         Houses in Pittsburgh
     </h1>
+    <div class="filter-container">
+      <div>
+        <label>Beds:</label>
+        <select id="bedFilter">
+            <option value="">Any</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Baths:</label>
+        <select id="bathFilter">
+            <option value="">Any</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+        </select>
+    </div>
+
+      <div>
+        <label>Home Type:</label>
+        <select id="homeTypeFilter">
+            <option value="">Any</option>
+            <option value="SingleFamily">Single Family</option>
+            <option value="MultiFamily2To4">Multi-Family (2-4)</option>
+            <option value="Townhouse">Townhouse</option>
+            <option value="Condominium">Condo</option>
+        </select>
+    </div>
+
+    </div>
     <svg id="choropleth" height="700" width="700" style="background: rgb(255, 255, 255); margin-top:0px"></svg>
     <div id="tooltip" class="tooltip"></div>
 
@@ -146,10 +181,34 @@
 
             console.log("Data Loaded:", houseData.length, "homes");  // Debugging
 
-            loadMap(); // Run loadMap only after data is ready
-            loadHomes();
+            await loadMap(houseData); // Run loadMap only after data is ready
+            loadHomes(houseData);
 
         };
+
+        const applyFilters = () => {
+          // jenny u can edit this with ur range slider stuff
+          const minBeds = +document.getElementById("bedFilter").value || 0;
+          const minBaths = +document.getElementById("bathFilter").value || 0;
+          const homeType = document.getElementById("homeTypeFilter").value;
+
+
+          // Apply filters
+          let filteredData = houseData.filter(d => {
+              return (
+                  // +d.Price >= minPrice && +d.Price <= maxPrice &&
+                  // +d.YearBuilt >= minYear && +d.YearBuilt <= maxYear &&
+                  +d["Bedrooms"] >= minBeds &&
+                  +d["Bathroom"] >= minBaths &&
+                  (homeType === "" || d["Property Type"] === homeType)
+              );
+          });
+
+          updateList(filteredData);
+          updateMap(filteredData);
+        };
+
+        let pittsburghGeoJSON = null;
 
         const loadMap = async function() {
             if (houseData.length === 0) {
@@ -160,8 +219,8 @@
             // check how many unique neighborhoods there are: 57
             const uniqueNeighborhoods = new Set(houseData.map(point => point.Neighborhood));
 
-            let pitts = await d3.json("pittsburgh.geojson");
-            var neigh = pitts.features;
+            pittsburghGeoJSON = await d3.json("pittsburgh.geojson");
+            var neigh = pittsburghGeoJSON.features;
 
             var projection = d3.geoMercator().fitSize([mapWidth, mapHeight], { type: "FeatureCollection", features: neigh });
             var path = d3.geoPath().projection(projection);
@@ -221,8 +280,64 @@
 
         loadData();
 
+        // Function to update the list dynamically
+        const updateList = (data) => {
+          const homeList = d3.select("#list-container");
 
+          homeList.selectAll(".list-item")
+              .data(data)
+              .join("div")
+              .attr("class", "list-item")
+              .html(d => {
+                  const icon = homeTypeIcons[d["Property Type"]] || "default.svg";
+                  return `<img src="${icon}" alt="${d.Type}">`;
+                });
+        };
 
+        // Function to update map
+        const updateMap = async (data) => {
+            var neigh = pittsburghGeoJSON.features;
+
+            var projection = d3.geoMercator().fitSize([mapWidth, mapHeight], { type: "FeatureCollection", features: neigh });
+            var path = d3.geoPath().projection(projection);
+          
+            map.selectAll("path.neighborhood").data(neigh)
+                .join("path")
+                .attr("class", "neighborhood")
+                .attr("d", path);
+
+            const tooltip = d3.select("#tooltip");
+
+            map.selectAll("circle").data(data)
+                .join("circle")
+                .attr("class", "circle")
+                .attr("cx", d => projection([+d.Longitude, +d.Latitude])[0])
+                .attr("cy", d => projection([+d.Longitude, +d.Latitude])[1])
+                .attr("r", 3)
+                .attr("fill", d => homeTypeColors(d["Property Type"]) || "#ccc") 
+                .attr("opacity", 0.7)
+                .attr("stroke", "black")
+                .attr("stroke-width", 0.5)
+                .on("mouseover", (event, d) => {
+                    tooltip.style("display", "block")
+                          .html(`Neighborhood: <strong>${d.Neighborhood}</strong>`)
+                          .style("left", (event.pageX + 10) + "px")
+                          .style("top", (event.pageY - 10) + "px");
+                })
+                .on("mousemove", (event, d) => {
+                    tooltip.style("left", (event.pageX + 10) + "px")
+                          .style("top", (event.pageY - 10) + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.style("display", "none");
+                }),
+                update => update,
+                exit => exit.remove() ;
+      };
+
+        document.getElementById("bedFilter").addEventListener("change", applyFilters);
+        document.getElementById("bathFilter").addEventListener("change", applyFilters);
+        document.getElementById("homeTypeFilter").addEventListener("change", applyFilters);
 
 
 
