@@ -324,7 +324,7 @@
               <p><strong>Year Built:</strong> <span id="deep-year">-</span></p>
               <p><strong>Beds:</strong> <span id="deep-beds">-</span></p>
               <p><strong>Baths:</strong> <span id="deep-baths">-</span></p>
-              <button id="reset-btn" style="margin-top: 10px;">Reset</button>
+              <button id="reset-btn" style="margin-top: 10px;">Reset Filters</button>
             </div>
           </div>
         </div>
@@ -377,7 +377,7 @@
           .attr("transform","translate("+mapMargin.left+","+mapMargin.top+")");;
 
           // instantiated variables            
-          let houseData = []; // Global variable
+          let houseData = []; 
           let pittsburghGeoJSON = null;
           const selectedHomeTypes = new Set(); 
           let minPrice = null, maxPrice = null; // brush stuff - when user interacts w brush
@@ -547,7 +547,7 @@
                 .attr("opacity", 0.7)
                 .attr("stroke", "black")
                 .attr("stroke-width", 0.5)
-                .on("mouseover", function(event, d) {  // ✅ Use function() instead of => 
+                .on("mouseover", function(event, d) {  
                       if (this !== activePoint) {  
                           d3.select(this)
                               .attr("r", 6)
@@ -555,7 +555,7 @@
                               .attr("opacity", 1);
                       }
                   })
-                  .on("mouseout", function(event, d) {  // ✅ Use function() instead of =>
+                  .on("mouseout", function(event, d) {  
                       if (this !== activePoint) {
                           d3.select(this)
                               .attr("r", 4)
@@ -563,7 +563,7 @@
                               .attr("opacity", 0.7);
                       }
                   })
-                  .on("click", function(event, d) {  // ✅ Use function() instead of =>
+                  .on("click", function(event, d) {  
                       if (activePoint) {
                           d3.select(activePoint)
                               .attr("r", 4)
@@ -666,7 +666,7 @@
               .attr("opacity", 0.7)
               .attr("stroke", "black")
               .attr("stroke-width", 0.5)
-              .on("mouseover", function(event, d) {  // ✅ Use function() instead of => 
+              .on("mouseover", function(event, d) {  
                       if (this !== activePoint) {  
                           d3.select(this)
                               .attr("r", 6)
@@ -674,7 +674,7 @@
                               .attr("opacity", 1);
                       }
                   })
-                  .on("mouseout", function(event, d) {  // ✅ Use function() instead of =>
+                  .on("mouseout", function(event, d) {  
                       if (this !== activePoint) {
                           d3.select(this)
                               .attr("r", 4)
@@ -682,7 +682,7 @@
                               .attr("opacity", 0.7);
                       }
                   })
-                  .on("click", function(event, d) {  // ✅ Use function() instead of =>
+                  .on("click", function(event, d) {
                       if (activePoint) {
                           d3.select(activePoint)
                               .attr("r", 4)
@@ -736,6 +736,27 @@
           document.getElementById("deep-year").innerText = "-";
           document.getElementById("deep-beds").innerText = "-";
           document.getElementById("deep-baths").innerText = "-";
+
+        // Reset dropdown filters
+        document.getElementById("bedFilter").value = "";
+        document.getElementById("bathFilter").value = "";
+
+        // Reset home type selection
+        selectedHomeTypes.clear();
+        document.querySelectorAll(".home-type-btn").forEach(btn => {
+            btn.classList.remove("selected");
+        });
+
+        // Reset price brush selection
+        const brushGroup = d3.select("#price-brush .brush");
+        if (brushGroup) {
+            brushGroup.call(d3.brushX().clear);
+            minPrice = null;
+            maxPrice = null;
+        }
+
+        // Apply filters with all reset
+        applyFilters();
       });
 
       </script>
