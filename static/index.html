@@ -61,7 +61,7 @@
 
         .main-container {
             display: flex;
-            width: 80%;
+            width: 90%;
             margin-top: 20px;
         }
 
@@ -132,10 +132,12 @@
         }
 
         .filter-container {
+            width: 100%;
             display: flex;
             flex-direction: row;
             justify-content: center;
             align-items: center;
+            padding-bottom: 24px;
         }
 
         .filter-group select {
@@ -242,6 +244,61 @@
         .hist-bar {
             pointer-events: none;
         }
+
+        /* toggle */
+        .toggle-container {
+        display: flex;
+        align-items: center; 
+        gap: 10px; 
+        justify-content: flex-start; 
+        width: 100%; 
+        }
+
+        .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+        }
+
+        .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        }
+
+        .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 34px;
+        }
+
+        .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+        }
+
+        input:checked + .slider {
+        background-color: #4EC58C;
+        }
+
+        input:checked + .slider:before {
+        transform: translateX(26px);
+        }
+
       </style>
   </head>
   <body>
@@ -309,14 +366,20 @@
             </div>
           </div>
         </div>   
-
-        <button id="toggle-view" style="margin-top: 10px; margin-bottom: 10px;">Show List View</button>
+          
         
         <div id="dashboard">
           <svg id="choropleth" height="800" width="1000" style="background: rgb(255, 255, 255); margin-top:0px"></svg>
           <div id="list-container" width="1000" style="display: none;"></div>
           <div class="side-data" >
             <div>
+            <div class="toggle-container">
+                <label class="switch">
+                <input type="checkbox" id="toggle-view">
+                <span class="slider round"></span>
+                </label>
+                <span id="toggle-label">Show List View</span>
+            </div>
               <h2>Home Details</h2>
               <p><strong>Address:</strong> <span id="deep-address">-</span></p>
               <p><strong>Price:</strong> <span id="deep-price">-</span></p>
@@ -339,21 +402,37 @@
           <p><strong>Baths:</strong> <span id="deep-baths">-</span></p>
         </div> -->
       <script>
-          d3.select("#toggle-view").on("click", function() {
-          let choropleth = d3.select("#choropleth");
-          let listContainer = d3.select("#list-container");
-          let button = d3.select(this);
+    //       d3.select("#toggle-view").on("click", function() {
+    //       let choropleth = d3.select("#choropleth");
+    //       let listContainer = d3.select("#list-container");
+    //       let button = d3.select(this);
 
-          if (choropleth.style("display") !== "none") {
-              choropleth.style("display", "none");
-              listContainer.style("display", "flex");
-              button.text("Show Map View");
-          } else {
-              choropleth.style("display", "block");
-              listContainer.style("display", "none");
-              button.text("Show List View");
-          }
-      });
+    //       if (choropleth.style("display") !== "none") {
+    //           choropleth.style("display", "none");
+    //           listContainer.style("display", "flex");
+    //           button.text("Show Map View");
+    //       } else {
+    //           choropleth.style("display", "block");
+    //           listContainer.style("display", "none");
+    //           button.text("Show List View");
+    //       }
+    //   });
+    document.getElementById("toggle-view").addEventListener("change", function() {
+    let choropleth = document.getElementById("choropleth");
+    let listContainer = document.getElementById("list-container");
+    let label = document.getElementById("toggle-label");
+
+    if (this.checked) {
+        choropleth.style.display = "none";
+        listContainer.style.display = "flex";
+        label.innerText = "Show Map View";
+    } else {
+        choropleth.style.display = "block";
+        listContainer.style.display = "none";
+        label.innerText = "Show List View";
+    }
+});
+
       </script>
       <script>
           const homeTypeIcons = {
