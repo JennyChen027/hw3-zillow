@@ -575,7 +575,9 @@
 
         const applyFilters = () => {
             const filteredData = getFilteredData();
-
+            // feedback change: order icons by sales amt
+            filteredData.sort((a, b) => d3.ascending(+a["Sale Amount"], +b["Sale Amount"])); 
+            
             updateList(filteredData);
             updateMap(filteredData);
             updateHistogram();
@@ -583,6 +585,9 @@
 
         const loadHomes = async () => {
             const houseData = await d3.csv("zillow_pittsburgh.csv");
+
+            // feedback change: order icons by sales amt
+            houseData.sort((a, b) => d3.ascending(+a["Sale Amount"], +b["Sale Amount"])); 
 
             const homeList = d3.select("#list-container");
 
